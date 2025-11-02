@@ -1,0 +1,67 @@
+Please create a web application that tracks specified League of Legends players and sends notifications. The app must be built for personal use with a Riot Games Development API Key.
+
+The application must consist of two parts:
+
+A Frontend (index.html): A single HTML file that uses Tailwind CSS and vanilla JavaScript.
+
+A Backend (server.js): A Node.js server that manages all API calls and game logic.
+
+Project Requirements:
+
+1. Backend Server (server.js)
+
+API Key Management: The server must use a Riot Games Development API Key. This key must be stored in a variable that is easy to update (e.g., at the top of the file), as it will expire every 24 hours.
+
+API Proxy: The frontend must not call the Riot API directly. The frontend will make requests to the backend (e.g., /add-player, /get-status), and the backend will then call the Riot API. This is to protect the API key.
+
+The "Smart Polling Queue": This is the most critical requirement. The app must respect the Development Key's rate limit of 100 requests per 2 minutes.
+
+Create a list of all "tracked players" and store their "last known match ID."
+
+The server must loop through this list and check one player at a time using the match-v5 endpoint (to get their recent match list).
+
+There must be a delay of 1.5 seconds between each check to stay under the rate limit. (1.5s * 80 players = 120 seconds).
+
+This polling loop's job is to compare the most recent matchId from the API with the "last known match ID" stored on the server.
+
+"Game Finished" Logic:
+
+When the polling loop detects a new match ID has appeared (the API's latest match is different from the stored one), it knows a game just finished.
+
+The server must then:
+
+Send a "Game Finished" notification to the frontend.
+
+Update the "last known match ID" for that player.
+
+Trigger the "pattern analysis" logic below.
+
+Pattern & Streak Analysis (Triggered on Game Finish):
+
+After a new game is detected, the server will trigger a separate, low-priority set of API calls for that player to:
+
+Fetch their full match list from match-v5 to check for a losing streak.
+
+Download the full /timeline data for the new matchId and save it (e.g., to a local JSON file or database).
+
+2. Frontend (index.html)
+
+UI:
+
+An input field and an "Add Player" button to add a player (by Summoner Name) to the tracked list.
+
+A main dashboard area that lists all tracked players.
+
+Player Status Display:
+
+For each player, display their name and their current status (e.g., "Idle," "Just Finished," "On a Losing Streak").
+
+The frontend should periodically ask the backend server for the latest status of all players.
+
+Notifications:
+
+When the backend detects a new game has finished (a new match appears in their history), the frontend should show a clear notification (e.g., "Player X just finished a game!").
+
+Pattern Data (Simple):
+
+(Optional) When a player is clicked, show a simple view of the data collected from their last match's timeline (e.g., "Wards Placed: 25").
